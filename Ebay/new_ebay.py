@@ -12,8 +12,7 @@ downloader = DownloaderHelper(use_proxy=True, client_name='all')
 def get_collection():
     try:
         connection = pymongo.MongoClient('localhost', 27017)
-        db = connection['roma']
-        # db.authenticate('roma', 'LV7mSh?+8_ug?K')
+        db = connection['slava']
         collection = db['ebay_group_deal_store']
     except Exception as e:
         raise e
@@ -22,7 +21,6 @@ def get_collection():
 
 def get_product_to_scrape():
     collection = get_collection()
-    # "ebay_search_result": {"$exists": False}
     result = list(collection.find({"ebay_search_result.fitment": ""}, {'Product': 1, '_id': 0}))
     products_to_scrape = {str(source_item['Product']): source_item for source_item in result}
 
@@ -40,7 +38,7 @@ def chunkify(l, n):
 
 
 def write_to_csv(output_list, method, delimiter):
-    output_file = '/home/roman/Roma_Projects/New_Ebay/FIles/output_file_copy.csv'
+    output_file = '/home/slava/Slava_Projects/New_Ebay/FIles/output_file_copy.csv'
 
     with open(output_file, method) as f:
         writer = csv.writer(f, delimiter=delimiter, quoting=csv.QUOTE_MINIMAL)
@@ -144,39 +142,8 @@ def get_product_title(link):
     pass
 
 
-def make_output_file():
-    # write_to_csv(['sku', 'asin', 'price', 'quantity', 'Match', 'sku 2'], "w", '\t')
-
-    # df_input = pd.read_csv("/home/roman/Roma_Projects/New_Ebay/FIles/output_file.csv", sep='\t')
-    # df = df_input.where(~df_input.isnull(), None)
-    # input_excel_items = list(df.T.to_dict().values())
-    # # all_items = {excel_item['sku']:excel_item for excel_item in input_excel_items}
-    # all_items = {excel_item['sku']:excel_item for excel_item in input_excel_items if excel_item['Match'] == 'Not found'}
-    #
-    # df_output = pd.read_csv('/home/roman/Roma_Projects/New_Ebay/FIles/output_file_copy.csv', sep='\t')
-    # output_excel_items = list(df_output.T.to_dict().values())
-    # processed_items = {str(excel_item['sku']):excel_item for excel_item in output_excel_items}
-    #
-    # items_to_process = []
-    #
-    # for sku in all_items.keys():
-    #     if sku not in processed_items:
-    #         items_to_process.append(all_items[sku])
-    #
-    # for chunk in chunkify(items_to_process, 100):
-    #     pool = ThreadPool(100)
-    #     all_products = pool.map(get_fitment, chunk)
-    #     for product in all_products:
-    #         write_to_csv([product['sku'], product['asin'], product['price'], product['quantity'], product['Match'], product['sku 2']], "a", '\t')
-
-    # df_input = pd.read_csv("/home/roman/Roma_Projects/New_Ebay/FIles/LKQ_Redo_Amazon_clear.csv", sep='\t', engine='python')
-    # df = df_input.where(~df_input.isnull(), None)
-    # input_items = list(df.T.to_dict().values())
-
-
 def get_fit_and_id(product_to_scrap):
     collection = get_collection()
-    # search_result = {"fitment": "", "ebay_id": ""}
     for product in product_to_scrap.keys():
         try:
             for link in get_links(product_to_scrap[product]):

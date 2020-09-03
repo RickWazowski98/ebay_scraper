@@ -6,7 +6,7 @@ import pymongo
 def connect_to_db():
     try:
         connection = pymongo.MongoClient('localhost',27017)
-        db = connection['roma']
+        db = connection['slava']
         collection = db['ebay_group_deal_store']
         return collection
     except Exception as err:

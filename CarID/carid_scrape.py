@@ -28,8 +28,7 @@ class CaridScraper():
     # connect to a database
     try:
         connection = pymongo.MongoClient('localhost', 27017)
-        db = connection['roma']
-        # db.authenticate('roma', 'LV7mSh?+8_ug?K')
+        db = connection['slava']
         collection = db['ebay_group_deal_store']
     except Exception as e:
         logging.error("ERROR: %s" % e)
@@ -87,10 +86,6 @@ class CaridScraper():
             #result = list(self.collection.find({"search_result": {'$ne': None}}, {'Product': 1, 'search_result': {"$elemMatch": {"url": {"$ne": None}}, '_id': 0}}))
 
             products_to_scrape = {str(source_item['Product']): source_item for source_item in result}
-            # get processed items
-            #df_output = pd.read_csv('/home/slava/dataforest/GroupDealStore/Files/carid_product_processed.csv', sep='\t')
-            #output_processed_items = list(df_output.T.to_dict().values())
-            #processed_items = {str(processed_item['ebay_id']): processed_item for processed_item in output_processed_items}
 
             # get items to process
             items_to_process = []
@@ -133,10 +128,6 @@ class CaridScraper():
                     #continue
                 info_msg = f'Found {len(search_data)} products.'
                 logging.info(f'Found {len(search_data)} products for {initial_values_for_search}')
-                # if len(search_data) == 0:
-                #     print(search_response)
-                #     return
-                #break
             else:
                 security = True
                 logging.info(f'Security Check in final response from search: {initial_values_for_search}.')
@@ -188,8 +179,6 @@ class CaridScraper():
                     page = BeautifulSoup(product_page, 'html.parser')
                 try:
                     images = page.find("div", class_= "prod-gallery-thumbs prod-col-narrow js-product-thumbs").find_all("a")
-                    #images = [elem.get("href") for elem in images]
-                    #images = list(set(["https://www.carid.com" + elem for elem in images]))
                 except:
                     images = None
             else:
@@ -199,8 +188,6 @@ class CaridScraper():
         # If dont have security check in response
         if not security:
             pass
-            #self.write_to_csv_processed([product['ebay_id']], "a", '\t', 'carid_product_processed')
-            #self.collection.update_one({'Product': product['Product']}, {'$set': {'full_search_result': images}}, upsert=True)
         return True
 
     def product_pages_scrape(self, res):
@@ -247,9 +234,6 @@ class CaridScraper():
                 images = images.string.split("= ")[1].split(";")[0].split("'path': ")[1].split(",'alt': ")[0].replace("'","")
             except:
                 images = ""
-            # images = page.find("div", class_="main-content").find("main").find("div", class_="wrap main_wide").find_all("script")[-1]
-            # print(images)
-            # images = images.string.split("= ")[1].split(";")[0].split("'path': ")[1].split(",'alt': ")[0].replace("'","")
 
             try:
                 replaces_oe = page.find(class_="prod-offer-content js-point-price-match js-prod-part-numbers").get_text().split(" ")
@@ -331,8 +315,6 @@ class CaridScraper():
         url = f"https://www.carid.com/search_aj.php?keep_https=1&term={product_number}&ajaxid=1&code={downloader.search_key}"
         search_response = downloader.get_page(url)
         self.manager.push_download(downloader)
-        #print("good proy ->",self.manager.good_proxies)
-        #print("user agent list", self.manager.user_agents_list)
         
         return search_response
 
@@ -361,8 +343,6 @@ class CaridScraper():
 
         # get all links for product
         page = BeautifulSoup(html, 'html.parser')
-        #try:
-            #products_in_page = []
         items = page.find("div", class_="autoc-prod").find("ul").find_all("li")
         for prod in items:
             if prod.find("a"):
@@ -390,8 +370,6 @@ class CaridScraper():
 
                 products_list.append({"url":url, "name":name_str, "(OE)Part":oe_part, "abstr":absctrect_cat, "price":price})
         return products_list
-        #except AttributeError:
-        #    return products_list
 
     def write_to_csv_processed(self, output_list, method, delimiter, filename):
         output_file = f'/home/slava/dataforest/GroupDealStore/Files/{filename}.csv'
